@@ -1,0 +1,1344 @@
+{
+  "info": {
+    "name": "Thesis Check API",
+    "description": "论文查重系统API接口文档",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8888",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "基础端点",
+      "item": [
+        {
+          "name": "根路径",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "获取API基本信息"
+          }
+        },
+        {
+          "name": "健康检查",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "检查服务健康状态"
+          }
+        }
+      ]
+    },
+    {
+      "name": "认证管理",
+      "item": [
+        {
+          "name": "用户注册",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"student1\",\n  \"email\": \"student1@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"13800138000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "注册新用户，默认角色为学生"
+          }
+        },
+        {
+          "name": "用户登录",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "用户登录，返回JWT访问令牌"
+          }
+        },
+        {
+          "name": "获取当前用户信息",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "获取当前登录用户的详细信息"
+          }
+        },
+        {
+          "name": "更新用户资料",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"小明\",\n  \"phone\": \"13900139000\",\n  \"department\": \"计算机科学与技术学院\",\n  \"major\": \"软件工程\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "profile"]
+            },
+            "description": "更新当前用户的个人资料"
+          }
+        },
+        {
+          "name": "修改密码",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"admin456\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "password"]
+            },
+            "description": "修改当前用户的密码"
+          }
+        },
+        {
+          "name": "用户登出",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "用户登出（清空前端token）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "用户管理",
+      "item": [
+        {
+          "name": "获取用户列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users?page=1&page_size=10&role=student",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "role",
+                  "value": "student"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "获取用户列表，支持分页和筛选（需要教师以上权限）"
+          }
+        },
+        {
+          "name": "获取用户详情",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "2"]
+            },
+            "description": "获取指定用户的详细信息（需要教师以上权限）"
+          }
+        },
+        {
+          "name": "更新用户角色",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"teacher\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/3/role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "3", "role"]
+            },
+            "description": "更新用户角色（需要管理员权限）"
+          }
+        },
+        {
+          "name": "删除用户",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "2"]
+            },
+            "description": "删除指定用户（需要管理员权限）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "论文管理",
+      "item": [
+        {
+          "name": "上传毕业论文",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "title",
+                  "value": "基于深度学习的图像识别研究",
+                  "type": "text"
+                },
+                {
+                  "key": "student_name",
+                  "value": "张三",
+                  "type": "text"
+                },
+                {
+                  "key": "student_number",
+                  "value": "20210001",
+                  "type": "text"
+                },
+                {
+                  "key": "major",
+                  "value": "计算机科学与技术",
+                  "type": "text"
+                },
+                {
+                  "key": "department",
+                  "value": "计算机学院",
+                  "type": "text"
+                },
+                {
+                  "key": "advisor",
+                  "value": "李老师",
+                  "type": "text"
+                },
+                {
+                  "key": "academic_year",
+                  "value": "2024",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/papers/graduation",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "papers", "graduation"]
+            },
+            "description": "上传毕业论文文件"
+          }
+        },
+        {
+          "name": "上传课程论文",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "title",
+                  "value": "数据库设计课程报告",
+                  "type": "text"
+                },
+                {
+                  "key": "course_name",
+                  "value": "数据库系统原理",
+                  "type": "text"
+                },
+                {
+                  "key": "course_code",
+                  "value": "CS301",
+                  "type": "text"
+                },
+                {
+                  "key": "student_name",
+                  "value": "李四",
+                  "type": "text"
+                },
+                {
+                  "key": "student_number",
+                  "value": "20210002",
+                  "type": "text"
+                },
+                {
+                  "key": "semester",
+                  "value": "2024春季",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/papers/course",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "papers", "course"]
+            },
+            "description": "上传课程论文文件"
+          }
+        },
+        {
+          "name": "获取论文列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/papers?page=1&page_size=10&paper_type=graduation",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "papers"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "paper_type",
+                  "value": "graduation"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "student_number",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "获取论文列表，支持分页和筛选"
+          }
+        },
+        {
+          "name": "获取论文详情",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/papers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "papers", "1"]
+            },
+            "description": "获取指定论文的详细信息"
+          }
+        },
+        {
+          "name": "删除论文",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/papers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "papers", "1"]
+            },
+            "description": "删除指定论文（作者或管理员）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "模板管理",
+      "item": [
+        {
+          "name": "上传模板",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "name",
+                  "value": "本科毕业论文模板",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "计算机学院本科毕业论文标准格式模板",
+                  "type": "text"
+                },
+                {
+                  "key": "template_type",
+                  "value": "graduation",
+                  "type": "text"
+                },
+                {
+                  "key": "visibility",
+                  "value": "public",
+                  "type": "text"
+                },
+                {
+                  "key": "department",
+                  "value": "计算机学院",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/templates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "templates"]
+            },
+            "description": "上传新模板（需要教师以上权限）"
+          }
+        },
+        {
+          "name": "获取模板列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/templates?page=1&page_size=10&template_type=graduation",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "templates"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "template_type",
+                  "value": "graduation"
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "获取模板列表"
+          }
+        },
+        {
+          "name": "获取模板详情",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/templates/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "templates", "1"]
+            },
+            "description": "获取指定模板的详细信息"
+          }
+        },
+        {
+          "name": "更新模板",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"本科毕业论文模板（更新版）\",\n  \"description\": \"计算机学院本科毕业论文标准格式模板2024版\",\n  \"visibility\": \"public\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/templates/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "templates", "1"]
+            },
+            "description": "更新模板信息（需要教师以上权限）"
+          }
+        },
+        {
+          "name": "删除模板",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/templates/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "templates", "1"]
+            },
+            "description": "删除指定模板（需要管理员权限）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "检查管理",
+      "item": [
+        {
+          "name": "提交检查任务",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paper_id\": 1,\n  \"check_title\": true,\n  \"check_format\": true,\n  \"check_content\": true,\n  \"check_duplicate\": true,\n  \"check_logic\": true,\n  \"template_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/check/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check", "submit"]
+            },
+            "description": "提交论文检查任务，异步执行检查"
+          }
+        },
+        {
+          "name": "获取检查状态",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/check/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check", "status", "1"]
+            },
+            "description": "获取检查任务的状态和进度"
+          }
+        }
+      ]
+    },
+    {
+      "name": "结果管理",
+      "item": [
+        {
+          "name": "获取结果列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/results?page=1&page_size=10&paper_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "results"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "paper_id",
+                  "value": "1"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "获取检查结果列表"
+          }
+        },
+        {
+          "name": "获取结果详情",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/results/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "results", "1"]
+            },
+            "description": "获取检查结果详情，包含所有问题清单"
+          }
+        },
+        {
+          "name": "删除检查结果",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/results/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "results", "1"]
+            },
+            "description": "删除检查结果（需要管理员权限）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "往届论文管理",
+      "item": [
+        {
+          "name": "上传往届论文",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "title",
+                  "value": "2023届优秀毕业论文",
+                  "type": "text"
+                },
+                {
+                  "key": "author",
+                  "value": "王五",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "2023",
+                  "type": "text"
+                },
+                {
+                  "key": "department",
+                  "value": "计算机学院",
+                  "type": "text"
+                },
+                {
+                  "key": "major",
+                  "value": "软件工程",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/previous-papers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "previous-papers"]
+            },
+            "description": "上传往届论文用于查重对比（需要教师以上权限）"
+          }
+        },
+        {
+          "name": "获取往届论文列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/previous-papers?page=1&page_size=10&year=2023",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "previous-papers"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "year",
+                  "value": "2023"
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "获取往届论文列表"
+          }
+        },
+        {
+          "name": "获取往届论文详情",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/previous-papers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "previous-papers", "1"]
+            },
+            "description": "获取往届论文详情"
+          }
+        },
+        {
+          "name": "删除往届论文",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/previous-papers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "previous-papers", "1"]
+            },
+            "description": "删除往届论文（需要管理员权限）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "参数管理",
+      "item": [
+        {
+          "name": "创建参数配置",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"计算机学院毕业论文检查参数\",\n  \"duplicate_rate_threshold\": 15,\n  \"format_excellent_threshold\": 0,\n  \"format_good_threshold\": 3,\n  \"format_passing_threshold\": 10,\n  \"format_failure_threshold\": 20,\n  \"title_excellent_threshold\": 0,\n  \"title_good_threshold\": 1,\n  \"title_passing_threshold\": 3,\n  \"title_failure_threshold\": 5,\n  \"application_scope\": \"department\",\n  \"scope_id\": \"计算机学院\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/parameters",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "parameters"]
+            },
+            "description": "创建参数配置（需要系主任以上权限）"
+          }
+        },
+        {
+          "name": "获取参数列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/parameters?page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "parameters"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "application_scope",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "获取参数配置列表（返回当前生效的参数）"
+          }
+        },
+        {
+          "name": "更新参数配置",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duplicate_rate_threshold\": 20,\n  \"format_excellent_threshold\": 0,\n  \"format_good_threshold\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/parameters/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "parameters", "1"]
+            },
+            "description": "更新参数配置（需要系主任以上权限，未锁定状态）"
+          }
+        },
+        {
+          "name": "锁定参数配置",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/parameters/1/lock",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "parameters", "1", "lock"]
+            },
+            "description": "锁定参数配置，防止修改（需要院长权限）"
+          }
+        },
+        {
+          "name": "解锁参数配置",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/parameters/1/unlock",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "parameters", "1", "unlock"]
+            },
+            "description": "解锁参数配置，允许修改（需要院长权限）"
+          }
+        },
+        {
+          "name": "删除参数配置",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/parameters/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "parameters", "1"]
+            },
+            "description": "删除参数配置（需要管理员权限）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "统计信息",
+      "item": [
+        {
+          "name": "获取概览统计",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/statistics/overview",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "statistics", "overview"]
+            },
+            "description": "获取系统概览统计（需要教师以上权限）"
+          }
+        },
+        {
+          "name": "获取学院统计",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/statistics/department?department=计算机学院",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "statistics", "department"],
+              "query": [
+                {
+                  "key": "department",
+                  "value": "计算机学院"
+                }
+              ]
+            },
+            "description": "获取指定学院的统计信息（需要系主任以上权限）"
+          }
+        },
+        {
+          "name": "获取教师统计",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/statistics/teacher",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "statistics", "teacher"]
+            },
+            "description": "获取当前教师的统计信息（仅教师可访问）"
+          }
+        }
+      ]
+    }
+  ]
+}

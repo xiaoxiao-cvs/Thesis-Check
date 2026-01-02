@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Row, Col, Statistic, Select, DatePicker, Spin, message } from 'antd';
 import { FileTextOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
-import { getStatisticsOverview, getStatisticsByDepartment, getStatisticsByTeacher } from '@/api/statistics';
+import { getOverviewStatistics, getDepartmentStatistics, getTeacherStatistics } from '@/api/statistics';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
 import { USER_ROLES } from '@/utils/constants';
@@ -36,17 +36,17 @@ const Statistics = () => {
       };
 
       // 加载总览数据
-      const overviewRes = await getStatisticsOverview(params);
+      const overviewRes = await getOverviewStatistics(params);
       setOverviewData(overviewRes.data);
 
       // 根据权限加载不同数据
       if (isDean) {
-        const deptRes = await getStatisticsByDepartment(params);
+        const deptRes = await getDepartmentStatistics(params);
         setDepartmentData(deptRes.data || []);
       }
 
       if (isDirector || isDean) {
-        const teacherRes = await getStatisticsByTeacher(params);
+        const teacherRes = await getTeacherStatistics(params);
         setTeacherData(teacherRes.data || []);
       }
     } catch (error) {

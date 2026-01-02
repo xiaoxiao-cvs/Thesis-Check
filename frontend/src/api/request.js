@@ -49,10 +49,16 @@ request.interceptors.response.use(
       
       // Token过期或无效
       if (status === 401) {
-        message.error('登录已过期，请重新登录');
-        removeToken();
-        // 跳转到登录页
-        window.location.href = '/login';
+        const currentPath = window.location.pathname;
+        // 如果不在登录页，才显示"登录已过期"
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          message.error('登录已过期，请重新登录');
+          removeToken();
+          window.location.href = '/login';
+        } else {
+          // 在登录页显示具体错误信息
+          message.error(data?.detail || '用户名或密码错误');
+        }
         return Promise.reject(error);
       }
       

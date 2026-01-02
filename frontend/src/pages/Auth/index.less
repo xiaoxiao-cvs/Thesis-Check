@@ -4,9 +4,11 @@
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
   
   .login-card {
     width: 400px;
+    max-width: 90vw;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     
     .ant-card-head-title {
@@ -26,6 +28,41 @@
           text-decoration: underline;
         }
       }
+    }
+  }
+
+  // 横屏适配
+  @media screen and (orientation: landscape) and (max-height: 600px) {
+    padding: 10px;
+    
+    .login-card {
+      width: 500px;
+      max-width: 70vw;
+      
+      .ant-card-head {
+        padding: 12px 16px;
+      }
+      
+      .ant-card-head-title {
+        font-size: 18px;
+      }
+      
+      .ant-card-body {
+        padding: 16px;
+      }
+      
+      .ant-form-item {
+        margin-bottom: 12px;
+      }
+    }
+  }
+
+  // 小屏幕适配
+  @media screen and (max-width: 480px) {
+    .login-card {
+      width: 100%;
+      max-width: 100%;
+      margin: 0 10px;
     }
   }
 }

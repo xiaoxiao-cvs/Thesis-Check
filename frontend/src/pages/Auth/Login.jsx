@@ -2,7 +2,7 @@ import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { login } from '@/store/authSlice';
+import { login, fetchCurrentUser } from '@/store/authSlice';
 import './index.less';
 
 const Login = () => {
@@ -13,6 +13,7 @@ const Login = () => {
   const handleSubmit = async (values) => {
     try {
       await dispatch(login(values)).unwrap();
+      await dispatch(fetchCurrentUser()).unwrap();
       message.success('登录成功');
       navigate('/dashboard');
     } catch (error) {

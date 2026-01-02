@@ -15,8 +15,8 @@ const ParameterList = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingParam, setEditingParam] = useState(null);
   const [form] = Form.useForm();
-  const { hasPermission } = usePermission();
-  const isDean = hasPermission(USER_ROLES.DEAN);
+  const { checkPermission } = usePermission();
+  const isDean = checkPermission(USER_ROLES.DEAN);
 
   useEffect(() => {
     loadData();

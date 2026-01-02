@@ -4,7 +4,14 @@ import request from './request';
  * 获取用户列表
  */
 export const getUserList = (params) => {
-  return request.get('/users', { params });
+  // 过滤掉空字符串参数
+  const filteredParams = Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== '' && value !== null && value !== undefined) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+  return request.get('/users', { params: filteredParams });
 };
 
 /**

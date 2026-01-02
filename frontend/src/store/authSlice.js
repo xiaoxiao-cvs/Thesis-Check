@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { login as loginApi, getCurrentUser, logout as logoutApi } from '@/api/auth';
-import { setToken, removeToken } from '@/utils/auth';
+import { setToken, removeToken, getToken } from '@/utils/auth';
 
 // 异步登录
 export const login = createAsyncThunk('auth/login', async (credentials) => {
@@ -24,7 +24,7 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    token: null,
+    token: getToken(),
     user: null,
     loading: false,
     error: null,

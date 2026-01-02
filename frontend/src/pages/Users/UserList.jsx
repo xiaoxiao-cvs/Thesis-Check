@@ -38,7 +38,7 @@ const UserList = () => {
       };
       
       const res = await getUserList(params);
-      setDataSource(res.data || []);
+      setDataSource(res.items || []);
       setPagination(prev => ({ ...prev, total: res.total || 0 }));
     } catch (error) {
       message.error('加载用户列表失败');

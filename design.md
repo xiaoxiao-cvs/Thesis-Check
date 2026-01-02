@@ -597,8 +597,6 @@
 - 进程管理：Gunicorn + Supervisor / Uvicorn
 - Web服务器：Nginx (反向代理 + 静态资源)
 - SQLite 3.x (小规模) 或 PostgreSQL (大规模)
-- Redis 7.x (缓存和任务队列)
-- Celery Worker (异步任务处理)
 - 监控工具：Prometheus + Grafana
 
 ### 8.4 Docker部署 (推荐)
@@ -837,3 +835,241 @@ class User(Base):
 ```
 
 使用Alembic进行数据库迁移管理。
+
+---
+
+## 15. 前端实现规划
+
+### 15.1 前端技术栈
+
+| 技术类别      | 技术选型                | 版本    | 说明                           |
+|--------------|------------------------|---------|-------------------------------|
+| 框架         | React                  | 19.2    | 最新版本，支持并发特性          |
+| 构建工具      | Vite                   | 7.3     | 快速的开发构建工具              |
+| UI组件库      | Ant Design             | 6.1     | 企业级UI组件库                 |
+| 状态管理      | Redux Toolkit          | 2.11    | 简化的Redux状态管理             |
+| 路由         | React Router           | 7.11    | 声明式路由                     |
+| HTTP客户端    | Axios                  | 1.13    | Promise风格的HTTP库            |
+| 日期处理      | Day.js                 | 1.11    | 轻量级日期库                   |
+| 样式方案      | Less                   | 4.5     | CSS预处理器                    |
+| 图表库       | ECharts                | 待定    | 数据可视化（统计分析页面）       |
+
+### 15.2 已完成功能 ✅
+
+#### 基础架构（100%）
+- ✅ Vite项目初始化，核心依赖安装
+- ✅ Vite配置（代理、路径别名、Less支持）
+- ✅ 环境变量配置（开发/生产环境）
+- ✅ 标准化目录结构（api、components、pages、store、utils等）
+- ✅ 路由配置（懒加载、嵌套路由、权限路由）
+
+#### API封装（100%）
+- ✅ Axios实例配置（JWT拦截器、统一错误处理）
+- ✅ 10个API模块：auth、users、papers、templates、check、results、parameters、previousPapers、statistics
+
+#### 认证与权限系统（100%）
+- ✅ Redux authSlice（登录、获取用户、登出）
+- ✅ JWT Token管理（localStorage）
+- ✅ PrivateRoute组件（路由级权限控制）
+- ✅ useAuth Hook（认证状态）
+- ✅ usePermission Hook（权限检查）
+- ✅ 五级权限体系实现（学生/教师/主任/院长/管理员）
+
+#### 通用组件（100%）
+- ✅ MainLayout（侧边栏菜单、顶栏、根据权限动态显示菜单）
+- ✅ PrivateRoute（权限路由包装器）
+- ✅ GradeTag（评级标签）
+- ✅ SeverityTag（问题严重程度标签）
+
+#### 自定义Hooks（100%）
+- ✅ useAuth（认证状态管理）
+- ✅ usePermission（权限检查）
+- ✅ useWebSocket（WebSocket连接，支持自动重连）
+
+#### 工具函数（100%）
+- ✅ constants.js（角色、状态、类型等常量定义）
+- ✅ auth.js（Token管理、权限判断）
+- ✅ format.js（日期、数字、文本格式化）
+
+#### 核心页面（30%）
+- ✅ Login（登录页面）
+- ✅ Register（注册页面）
+- ✅ Dashboard（工作台，统计卡片、最近论文）
+- ✅ PaperList（论文列表，搜索、筛选、分页）
+- ✅ NotFound、Forbidden（错误页面）
+
+### 15.3 待完成功能 ⚠️
+
+#### 学生端核心功能
+1. **个人资料页面** - 显示用户信息、修改资料、修改密码
+2. **论文上传页面** - 文件上传组件（拖拽）、根据类型显示不同表单、进度显示
+3. **论文详情页面** - 显示论文元数据、历史检查记录、操作按钮
+4. **检查提交页面** - 选择检查类型、选择模板、提交任务
+5. **检查状态页面** - WebSocket实时显示进度、完成后跳转
+6. **结果列表页面** - 显示检查结果、筛选搜索
+7. **结果详情页面** - 整体评级、问题分类展示、下载报告
+
+#### 教师端功能
+8. **模板管理页面** - 上传模板、列表、编辑/删除
+9. **往届论文管理** - 上传往届论文、列表、删除
+10. **统计分析页面** - ECharts图表、多维度统计
+
+#### 管理端功能
+11. **用户管理页面** - 用户列表、修改角色、删除用户
+12. **参数设置页面** - 创建/编辑参数、锁定/解锁（院长权限）
+
+### 15.4 前端项目结构
+
+```
+frontend/
+├── src/
+│   ├── api/                    # API接口封装 ✅
+│   │   ├── request.js          # Axios实例
+│   │   ├── auth.js             # 认证API
+│   │   ├── users.js            # 用户API
+│   │   ├── papers.js           # 论文API
+│   │   ├── templates.js        # 模板API
+│   │   ├── check.js            # 检查API
+│   │   ├── results.js          # 结果API
+│   │   ├── parameters.js       # 参数API
+│   │   ├── previousPapers.js   # 往届论文API
+│   │   └── statistics.js       # 统计API
+│   │
+│   ├── components/             # 通用组件 ✅
+│   │   ├── Layout/             # 主布局
+│   │   ├── PrivateRoute/       # 权限路由
+│   │   ├── GradeTag/           # 评级标签
+│   │   └── SeverityTag/        # 严重程度标签
+│   │
+│   ├── pages/                  # 页面组件
+│   │   ├── Auth/               # 登录注册 ✅
+│   │   ├── Dashboard/          # 工作台 ✅
+│   │   ├── Profile/            # 个人资料 ⚠️
+│   │   ├── Papers/             # 论文管理（部分完成）
+│   │   ├── Check/              # 检查相关 ⚠️
+│   │   ├── Results/            # 结果管理 ⚠️
+│   │   ├── Templates/          # 模板管理 ⚠️
+│   │   ├── Users/              # 用户管理 ⚠️
+│   │   ├── Parameters/         # 参数设置 ⚠️
+│   │   ├── Statistics/         # 统计分析 ⚠️
+│   │   ├── PreviousPapers/     # 往届论文 ⚠️
+│   │   └── Error/              # 错误页面 ✅
+│   │
+│   ├── store/                  # Redux状态管理 ✅
+│   │   ├── authSlice.js        # 认证状态
+│   │   └── index.js            # Store配置
+│   │
+│   ├── hooks/                  # 自定义Hooks ✅
+│   │   ├── useAuth.js          # 认证Hook
+│   │   ├── usePermission.js    # 权限Hook
+│   │   └── useWebSocket.js     # WebSocket Hook
+│   │
+│   ├── utils/                  # 工具函数 ✅
+│   │   ├── constants.js        # 常量定义
+│   │   ├── auth.js             # 认证工具
+│   │   └── format.js           # 格式化工具
+│   │
+│   ├── styles/                 # 全局样式 ✅
+│   │   └── global.less         # 全局样式
+│   │
+│   ├── App.jsx                 # 根组件 ✅
+│   ├── main.jsx                # 入口文件
+│   └── router.jsx              # 路由配置 ✅
+│
+├── .env                        # 环境变量 ✅
+├── .env.production             # 生产环境变量 ✅
+├── vite.config.js              # Vite配置 ✅
+├── package.json
+├── README.md                   # 项目说明
+└── IMPLEMENTATION.md           # 实现总结
+```
+
+### 15.5 前端启动说明
+
+```bash
+# 进入前端目录
+cd frontend
+
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+# 访问 http://localhost:5173
+
+# 构建生产版本
+pnpm build
+
+# 预览生产版本
+pnpm preview
+```
+
+### 15.6 环境变量配置
+
+`.env` - 开发环境：
+```env
+VITE_API_BASE_URL=http://localhost:8888/api/v1
+VITE_WS_URL=ws://localhost:8888/ws
+VITE_MAX_UPLOAD_SIZE=52428800
+```
+
+`.env.production` - 生产环境：
+```env
+VITE_API_BASE_URL=https://api.example.com/api/v1
+VITE_WS_URL=wss://api.example.com/ws
+VITE_MAX_UPLOAD_SIZE=52428800
+```
+
+### 15.7 核心功能实现说明
+
+#### WebSocket实时通信
+检查状态页面使用WebSocket接收实时进度更新：
+```javascript
+const { isConnected, lastMessage, sendMessage } = useWebSocket(
+  `${WS_URL}/check/${taskId}`,
+  {
+    onMessage: (data) => {
+      // 处理检查进度消息
+      setProgress(data.progress);
+      setStatus(data.status);
+    },
+    reconnect: true,
+    reconnectAttempts: 5,
+  }
+);
+```
+
+#### 权限控制
+五级权限体系，组件级和路由级双重控制：
+```javascript
+// 路由级权限
+<PrivateRoute requiredRoles={USER_ROLES.TEACHER}>
+  <TemplateList />
+</PrivateRoute>
+
+// 组件级权限
+const { checkMinRole } = usePermission();
+{checkMinRole(USER_ROLES.ADMIN) && (
+  <Button onClick={deleteUser}>删除用户</Button>
+)}
+```
+
+#### API请求流程
+1. 请求拦截：自动添加JWT Token
+2. 响应拦截：统一错误处理
+3. 401自动跳转登录
+4. 统一的错误消息提示
+
+### 15.8 开发进度总结
+
+- 🎉 **基础架构**: 100% 完成
+- 🎉 **认证系统**: 100% 完成
+- 🎉 **权限系统**: 100% 完成
+- 🎉 **API封装**: 100% 完成
+- 🎉 **主布局**: 100% 完成
+- ⚠️ **功能页面**: 约30% 完成（6/18个页面）
+- ⚠️ **整体进度**: 约60% 完成
+
+项目已经具备完整的基础架构和核心功能，可以正常启动运行。剩余的功能页面可以基于现有的组件和工具函数快速开发。
+
+---

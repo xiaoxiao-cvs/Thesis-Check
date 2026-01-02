@@ -9,6 +9,7 @@ import router from './router';
 import store from './store';
 import { fetchCurrentUser } from './store/authSlice';
 import { getToken } from './utils/auth';
+import NotificationProvider from './components/NotificationProvider';
 import './styles/global.less';
 
 // 配置dayjs中文
@@ -40,21 +41,23 @@ function App() {
   return (
     <Provider store={store}>
       <ConfigProvider locale={zhCN}>
-        <AppInit />
-        <Suspense
-          fallback={
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              height: '100vh' 
-            }}>
-              <Spin size="large" tip="加载中..." spinning={true} />
-            </div>
-          }
-        >
-          <RouterProvider router={router} />
-        </Suspense>
+        <NotificationProvider>
+          <AppInit />
+          <Suspense
+            fallback={
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh' 
+              }}>
+                <Spin size="large" tip="加载中..." spinning={true} />
+              </div>
+            }
+          >
+            <RouterProvider router={router} />
+          </Suspense>
+        </NotificationProvider>
       </ConfigProvider>
     </Provider>
   );

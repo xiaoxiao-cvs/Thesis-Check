@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Button } from 'antd';
+import { Card, Row, Col, Statistic, Table, Tag, Button, message } from 'antd';
 import {
   FileTextOutlined,
   CheckCircleOutlined,
@@ -12,12 +12,15 @@ import { getPaperList } from '@/api/papers';
 import { getResultList } from '@/api/results';
 import { formatDateTime } from '@/utils/format';
 import GradeTag from '@/components/GradeTag';
+import StatisticSkeleton from '@/components/StatisticSkeleton';
+import TableSkeleton from '@/components/TableSkeleton';
+import useLoading from '@/hooks/useLoading';
 import './index.less';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { loading, withLoading } = useLoading(true);
   const [stats, setStats] = useState({
     totalPapers: 0,
     checkingPapers: 0,
@@ -32,26 +35,25 @@ const Dashboard = () => {
   }, []);
   
   const loadData = async () => {
-    setLoading(true);
-    try {
-      // 获取论文列表
-      const paperRes = await getPaperList({ page: 1, page_size: 5 });
-      setRecentPapers(paperRes.data || []);
-      setStats(prev => ({ ...prev, totalPapers: paperRes.total || 0 }));
-      
-      // 获取检查结果
-      const resultRes = await getResultList({ page: 1, page_size: 100 });
-      const results = resultRes.data || [];
-      setStats(prev => ({
-        ...prev,
-        completedChecks: results.length,
-        problemCount: results.reduce((sum, r) => sum + (r.problem_count || 0), 0),
-      }));
-    } catch (error) {
-      console.error('加载数据失败:', error);
-    } finally {
-      setLoading(false);
-    }
+    await withLoading(async () => {
+      try {
+        // 获取论文列表
+        const paperRes = await getPaperList({ page: 1, page_size: 5 });
+        setRecentPapers(paperRes.data || []);
+        setStats(prev => ({ ...prev, totalPapers: paperRes.total || 0 }));
+        
+        // 获取检查结果
+        const resultRes = await getResultList({ page: 1, page_size: 100 });
+        const results = resultRes.data || [];
+        setStats(prev => ({
+          ...prev,
+          completedChecks: results.length,
+          problemCount: results.reduce((sum, r) => sum + (r.problem_count || 0), 0),
+        }));
+      } catch (error) {
+        message.error('加载仪表盘数据失败，请刷新页面');
+      }
+    });
   };
   
   const columns = [
@@ -107,48 +109,52 @@ const Dashboard = () => {
         })}</p>
       </div>
       
-      <Row gutter={16} className="stats-row">
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="我的论文"
-              value={stats.totalPapers}
-              prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="检查中"
-              value={stats.checkingPapers}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="已完成"
-              value={stats.completedChecks}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="问题总数"
-              value={stats.problemCount}
-              prefix={<WarningOutlined />}
-              valueStyle={{ color: '#f5222d' }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      {loading ? (
+        <StatisticSkeleton count={4} />
+      ) : (
+        <Row gutter={16} className="stats-row">
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <Statistic
+                title="我的论文"
+                value={stats.totalPapers}
+                prefix={<FileTextOutlined />}
+                valueStyle={{ color: '#1890ff' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <Statistic
+                title="检查中"
+                value={stats.checkingPapers}
+                prefix={<ClockCircleOutlined />}
+                valueStyle={{ color: '#faad14' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <Statistic
+                title="已完成"
+                value={stats.completedChecks}
+                prefix={<CheckCircleOutlined />}
+                valueStyle={{ color: '#52c41a' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card>
+              <Statistic
+                title="问题总数"
+                value={stats.problemCount}
+                prefix={<WarningOutlined />}
+                valueStyle={{ color: '#f5222d' }}
+              />
+            </Card>
+          </Col>
+        </Row>
+      )}
       
       <Card
         title="最近论文"
@@ -159,13 +165,16 @@ const Dashboard = () => {
           </Button>
         }
       >
-        <Table
-          columns={columns}
-          dataSource={recentPapers}
-          loading={loading}
-          rowKey="id"
-          pagination={false}
-        />
+        {loading ? (
+          <TableSkeleton columns={4} rows={5} />
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={recentPapers}
+            rowKey="id"
+            pagination={false}
+          />
+        )}
       </Card>
     </div>
   );

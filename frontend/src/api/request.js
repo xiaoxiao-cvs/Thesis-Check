@@ -2,6 +2,7 @@ import axios from 'axios';
 import { message } from 'antd';
 import { getToken, removeToken } from '@/utils/auth';
 import { API_BASE_URL } from '@/utils/constants';
+import { getErrorMessage } from '@/utils/errorHandler';
 
 // 创建axios实例
 const request = axios.create({
@@ -33,16 +34,12 @@ request.interceptors.response.use(
   (response) => {
     const res = response.data;
     
-    // 如果返回的状态码不是200，说明接口有问题
-    if (response.status !== 200) {
-      message.error(res.message || '请求失败');
-      return Promise.reject(new Error(res.message || '请求失败'));
-    }
-    
+    // 正常返回数据
     return res;
   },
   (error) => {
-    console.error('响应错误:', error);
+    // 不在这里显示错误，让调用方决定如何处理
+    // 只处理特殊情况：401 自动跳转登录
     
     if (error.response) {
       const { status, data } = error.response;
@@ -50,42 +47,25 @@ request.interceptors.response.use(
       // Token过期或无效
       if (status === 401) {
         const currentPath = window.location.pathname;
-        // 如果不在登录页，才显示"登录已过期"
+        // 如果不在登录页，才跳转并显示提示
         if (currentPath !== '/login' && currentPath !== '/register') {
           message.error('登录已过期，请重新登录');
           removeToken();
-          window.location.href = '/login';
-        } else {
-          // 在登录页显示具体错误信息
-          message.error(data?.detail || '用户名或密码错误');
+          // 延迟跳转，让用户看到消息
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1000);
         }
-        return Promise.reject(error);
       }
       
-      // 权限不足
-      if (status === 403) {
-        message.error('权限不足');
-        return Promise.reject(error);
-      }
-      
-      // 404
-      if (status === 404) {
-        message.error('请求的资源不存在');
-        return Promise.reject(error);
-      }
-      
-      // 服务器错误
-      if (status >= 500) {
-        message.error(data?.detail || '服务器错误，请稍后重试');
-        return Promise.reject(error);
-      }
-      
-      // 其他错误
-      message.error(data?.detail || data?.message || '请求失败');
+      // 将后端错误信息附加到error对象
+      error.message = data?.detail || data?.message || getErrorMessage(error);
     } else if (error.request) {
-      message.error('网络连接失败，请检查网络');
+      // 网络错误
+      error.message = '网络连接失败，请检查您的网络设置';
     } else {
-      message.error('请求配置错误');
+      // 其他错误
+      error.message = error.message || '请求失败';
     }
     
     return Promise.reject(error);

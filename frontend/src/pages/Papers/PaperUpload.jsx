@@ -42,10 +42,12 @@ const PaperUpload = () => {
         await uploadCoursePaper(formData);
       }
 
-      message.success('论文上传成功');
-      navigate('/papers/list');
+      message.success('论文上传成功，正在跳转...');
+      setTimeout(() => {
+        navigate('/papers/list');
+      }, 1000);
     } catch (error) {
-      message.error('上传失败，请重试');
+      message.error(error.message || '上传失败，请检查网络后重试');
     } finally {
       setUploading(false);
     }

@@ -3,17 +3,20 @@ import { Card, Progress, Alert, Button, Descriptions, Result, Spin } from 'antd'
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useNotification } from '@/components/NotificationProvider';
 import { getCheckStatus } from '@/api/check';
 import { WS_URL, CHECK_STATUS, CHECK_STATUS_NAMES } from '@/utils/constants';
 
 const CheckStatus = () => {
   const { taskId } = useParams();
   const navigate = useNavigate();
+  const { notifyCheckComplete } = useNotification();
   const [status, setStatus] = useState(CHECK_STATUS.PENDING);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState('准备中...');
   const [resultId, setResultId] = useState(null);
   const [error, setError] = useState(null);
+  const [paperTitle, setPaperTitle] = useState('');
 
   // 初始加载状态
   useEffect(() => {
@@ -26,6 +29,7 @@ const CheckStatus = () => {
       setStatus(data.status);
       setProgress(data.progress || 0);
       setCurrentStage(data.current_stage || '检查中...');
+      setPaperTitle(data.paper_title || '');
       if (data.result_id) {
         setResultId(data.result_id);
       }
@@ -44,6 +48,16 @@ const CheckStatus = () => {
       if (data.progress !== undefined) setProgress(data.progress);
       if (data.current_stage) setCurrentStage(data.current_stage);
       if (data.result_id) setResultId(data.result_id);
+      if (data.paper_title) setPaperTitle(data.paper_title);
+      
+      // 检查完成时发送通知
+      if (data.status === CHECK_STATUS.COMPLETED && data.result_id) {
+        notifyCheckComplete({
+          paper_title: data.paper_title || paperTitle,
+          overall_grade: data.overall_grade || '未知',
+          result_id: data.result_id,
+        });
+      }
       if (data.error) setError(data.error);
     },
     reconnect: true,

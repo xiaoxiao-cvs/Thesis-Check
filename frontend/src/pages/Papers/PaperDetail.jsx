@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Card, Descriptions, Button, Space, message, Modal, Table, Tag, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
+import { CheckOutlined, DeleteOutlined, DownloadOutlined, EyeOutlined } from '@ant-design/icons';
 import { getPaperDetail, deletePaper } from '@/api/papers';
 import { getResultList } from '@/api/results';
 import { formatDateTime } from '@/utils/format';
-import { PAPER_TYPE_NAMES } from '@/utils/constants';
+import { PAPER_TYPE_NAMES, API_BASE_URL } from '@/utils/constants';
 import GradeTag from '@/components/GradeTag';
+import PaperPreview from '@/components/PaperPreview';
 
 const PaperDetail = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ const PaperDetail = () => {
   const [loading, setLoading] = useState(true);
   const [paper, setPaper] = useState(null);
   const [results, setResults] = useState([]);
+  const [previewVisible, setPreviewVisible] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -105,6 +107,12 @@ const PaperDetail = () => {
         extra={
           <Space>
             <Button
+              icon={<EyeOutlined />}
+              onClick={() => setPreviewVisible(true)}
+            >
+              预览
+            </Button>
+            <Button
               type="primary"
               icon={<CheckOutlined />}
               onClick={() => navigate(`/check/submit/${id}`)}
@@ -162,6 +170,13 @@ const PaperDetail = () => {
           locale={{ emptyText: '暂无检查记录' }}
         />
       </Card>
+
+      <PaperPreview
+        visible={previewVisible}
+        onClose={() => setPreviewVisible(false)}
+        fileUrl={paper?.file_path ? `${API_BASE_URL}${paper.file_path}` : ''}
+        fileName={paper?.title}
+      />
     </div>
   );
 };

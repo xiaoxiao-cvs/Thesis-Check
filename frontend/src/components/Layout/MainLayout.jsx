@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, message } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, message, Space } from 'antd';
 import {
   UserOutlined,
   FileTextOutlined,
@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
 import { logout } from '@/store/authSlice';
 import { USER_ROLES } from '@/utils/constants';
+import NotificationCenter from '@/components/NotificationCenter';
 import './index.less';
 
 const { Header, Sider, Content } = Layout;
@@ -157,12 +158,15 @@ const MainLayout = () => {
       <Layout>
         <Header className="layout-header">
           <div className="header-right">
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <div className="user-info">
-                <Avatar icon={<UserOutlined />} />
-                <span className="username">{user?.nickname || user?.username}</span>
-              </div>
-            </Dropdown>
+            <Space size="large">
+              <NotificationCenter />
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                <div className="user-info">
+                  <Avatar icon={<UserOutlined />} />
+                  <span className="username">{user?.nickname || user?.username}</span>
+                </div>
+              </Dropdown>
+            </Space>
           </div>
         </Header>
         <Content className="layout-content">

@@ -1,8 +1,6 @@
 import { Suspense, useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { Provider, useDispatch } from 'react-redux';
-import { ConfigProvider, Spin, message } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import router from './router';
@@ -10,17 +8,11 @@ import store from './store';
 import { fetchCurrentUser } from './store/authSlice';
 import { getToken } from './utils/auth';
 import NotificationProvider from './components/NotificationProvider';
+import { Loading, ToastProvider } from './components/ui';
 import './styles/global.less';
 
 // 配置dayjs中文
 dayjs.locale('zh-cn');
-
-// 配置antd全局消息
-message.config({
-  top: 100,
-  duration: 2,
-  maxCount: 3,
-});
 
 // 初始化应用
 const AppInit = () => {
@@ -40,25 +32,14 @@ const AppInit = () => {
 function App() {
   return (
     <Provider store={store}>
-      <ConfigProvider locale={zhCN}>
+      <ToastProvider>
         <NotificationProvider>
           <AppInit />
-          <Suspense
-            fallback={
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: '100vh' 
-              }}>
-                <Spin size="large" tip="加载中..." spinning={true} />
-              </div>
-            }
-          >
+          <Suspense fallback={<Loading fullScreen text="加载中..." size="lg" />}>
             <RouterProvider router={router} />
           </Suspense>
         </NotificationProvider>
-      </ConfigProvider>
+      </ToastProvider>
     </Provider>
   );
 }

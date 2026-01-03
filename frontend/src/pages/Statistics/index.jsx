@@ -18,10 +18,10 @@ const Statistics = () => {
   const [teacherData, setTeacherData] = useState([]);
   const [dateRange, setDateRange] = useState([dayjs().subtract(30, 'day'), dayjs()]);
   const { user } = useAuth();
-  const { hasPermission } = usePermission();
+  const { checkPermission } = usePermission();
 
-  const isDirector = hasPermission(USER_ROLES.DIRECTOR);
-  const isDean = hasPermission(USER_ROLES.DEAN);
+  const isDirector = checkPermission(USER_ROLES.DIRECTOR);
+  const isDean = checkPermission(USER_ROLES.DEAN);
 
   useEffect(() => {
     loadData();
